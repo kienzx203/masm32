@@ -91,7 +91,10 @@ L1:
 	mov		eax, 0
 	mov		bl, BYTE PTR [edi]
 	mov		al, BYTE PTR [esi]
+	cmp		al, 0
+	jz		L9
 	sub		al, 30h
+L9:
 	sub		bl, 30h
 	add		bl,bh
 	add		al,bl
