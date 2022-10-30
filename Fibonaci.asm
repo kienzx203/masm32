@@ -11,7 +11,7 @@ includelib \masm32\lib\masm32.lib
 	
 	input		dd		30 DUP (?)
 	output		dd		30 DUP (?)
-	num			dd		0
+	num		dd		0
 	num2		dd		0
 	num3		dd		1
 	nline		db		20h, 20h, 0
@@ -22,13 +22,13 @@ MAIN PROC
 	call	StdIn
 	push	offset input
 	call	ATOI
- 	mov		num, eax
-	cmp		num ,3
-	jge		L1
+ 	mov	num, eax
+	cmp	num ,3
+	jge	L1
 	call	FIBONACI
 
 L1:
-	mov		eax, 0
+	mov	eax, 0
 	push	eax
 	push	offset output
 	call	REATOI
@@ -36,7 +36,7 @@ L1:
 	call	StdOut
 	push	offset nline
 	call	StdOut
-	mov		eax, 1
+	mov	eax, 1
 	push	eax
 	push	offset output
 	call	REATOI
@@ -57,29 +57,29 @@ MAIN ENDP
 
 ATOI PROC
 	push	ebp
-	mov		ebp, esp
+	mov	ebp, esp
 	push	ebx
-	mov		ebx, [ebp+08h]
-	xor		esi, esi								
-	xor		eax, eax
-	mov		ecx, 10
+	mov	ebx, [ebp+08h]
+	xor	esi, esi								
+	xor	eax, eax
+	mov	ecx, 10
 
 L1:
-	xor		edx, edx
-	mov		dl, byte ptr [ebx+esi]				
-	cmp		dl, 0								
-	jz		L2
+	xor	edx, edx
+	mov	dl, byte ptr [ebx+esi]				
+	cmp	dl, 0								
+	jz	L2
 	sub 	edx, 30h							
-	add		eax, edx							
-	mul		ecx									
-	inc		esi									
-	jmp		L1
+	add	eax, edx							
+	mul	ecx									
+	inc	esi									
+	jmp	L1
 
 L2:
-	div		ecx
-	pop		ebx
-	pop		ebp
-	ret		4
+	div	ecx
+	pop	ebx
+	pop	ebp
+	ret	4
 
 ATOI ENDP
 
@@ -87,8 +87,8 @@ REATOI PROC
 
     push    ebp
     mov     ebp, esp
-	xor		eax, eax
-	xor		ebx, ebx
+    xor     eax, eax
+    xor	    ebx, ebx
     mov     eax, [ebp + 0Ch]						
     mov     ebx, [ebp + 08h]						
     xor     esi, esi 
@@ -123,15 +123,15 @@ REATOI ENDP
 
 FIBONACI PROC
 	push	ebp
-	mov		ebp, esp
-	mov		ecx, 0
-	mov		ecx, num
-	xor		eax, eax
-	xor		ebx, ebx
-	jmp		L1
+	mov	ebp, esp
+	mov	ecx, 0
+	mov	ecx, num
+	xor	eax, eax
+	xor	ebx, ebx
+	jmp	L1
 
 L3:	
-	mov		eax, ecx
+	mov	eax, 0
 	push	eax
 	push	offset output
 	call	REATOI
@@ -142,30 +142,30 @@ L3:
 
 L1:
 	
-	cmp		ecx, 0
-	je		L3
-	cmp		ecx, 1
-	je		L3
-	cmp		ecx, 2
-	je		L6
-	jmp		L4
+	cmp	ecx, 0
+	je	L3
+	cmp	ecx, 1
+	je	L3
+	cmp	ecx, 2
+	je	L6
+	jmp	L4
 
 L4:
-	xor		eax, eax
-	xor		ebx, ebx
-	mov		eax, num2
-	mov		ebx, num3
-	mov		num2,ebx
-	add		eax, ebx
-	mov		num3,eax
-	cmp		ecx, 3
-	je		L5
-	jmp		L7
+	xor	eax, eax
+	xor	ebx, ebx
+	mov	eax, num2
+	mov	ebx, num3
+	mov	num2,ebx
+	add	eax, ebx
+	mov	num3,eax
+	cmp	ecx, 3
+	je	L5
+	jmp	L7
 L5:
-	xor		eax, eax
-	mov		eax, num3
-	pop		ebp
-	ret		4
+	xor	eax, eax
+	mov	eax, num3
+	pop	ebp
+	ret	4
 
 L6:
 	
@@ -198,9 +198,9 @@ L7:
 	call	StdOut
 	push	offset nline
 	call	StdOut
-	mov		ecx, ebx
-	dec		ecx
-	jmp		L4
+	mov	ecx, ebx
+	dec	ecx
+	jmp	L4
 	
 FIBONACI ENDP
 END MAIN
