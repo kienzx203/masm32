@@ -15,27 +15,57 @@ option casemap : none
 	num1	db 20 dup(0)
 	num2	db 20 dup(0)
 	num3	db 20 dup(0)
+	input	db "nhap num 1:", 0h
+	input1	db "nhap num 2:", 0h
+	output	db "ket qua :", 0h
 
 .code
 
 MAIN PROC
-	push	20
-	push	offset num1
-	call	StdIn
-	push	offset num1
-	call	LEN
-	mov	len1, eax
-	mov	esi, offset num1
-	mov	byte ptr [esi + eax + 1], 0h
 
+L1_:
+	push	offset input 
+	call	StdOut
+	push	20
+	push	offset num1
+	call	StdIn
+	mov		esi, offset num1
+	push	offset num1
+	call	LEN
+	mov		len1, eax
+	mov		byte ptr[esi + eax + 1], 0h
+	xor		ebx, ebx
+L2_:	
+	cmp		byte ptr [esi+ebx],30h
+	jb		L1_
+	cmp		byte ptr [esi+ebx], 39h
+	ja		L1_
+	inc		ebx
+	cmp		byte ptr[esi + ebx], 0
+	jnz		L2_
+	
+
+L3_:
+	push	offset input1
+	call	StdOut
 	push	20
 	push	offset num2
 	call	StdIn
 	push	offset num2
 	call	LEN
-	mov	len2, eax
-	mov	esi, offset num2
-	mov	byte ptr [esi + eax + 1], 0h
+	mov		len2, eax
+	mov		esi, offset num2
+	mov		byte ptr [esi + eax + 1], 0h
+	xor		ebx, ebx
+L4_:
+	cmp		byte ptr[esi + ebx], 30h
+	jb		L3_
+	cmp		byte ptr[esi + ebx], 39h
+	ja		L3_
+	inc		ebx
+	cmp		byte ptr[esi + ebx], 0
+	jnz		L4_
+
 	push	offset num1
 	call	CHECK
 	push	offset num2
@@ -55,6 +85,8 @@ MAIN PROC
 		call	ADD_TWO
 		push	offset num3
 		call	CHECK
+		push	offset output
+		call	StdOut
 		push	offset num3
 		call	StdOut
 		push	0
@@ -69,6 +101,8 @@ MAIN PROC
 		call	ADD_TWO
 		push	offset num3
 		call	CHECK
+		push	offset output
+		call	StdOut
 		push	offset num3
 		call	StdOut
 		push	0
