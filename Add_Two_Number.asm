@@ -1,309 +1,223 @@
 .386
 .model flat, stdcall
-option casemap:none
-
-include \masm32\include\kernel32.inc 
-include \masm32\include\masm32.inc 
-includelib \masm32\lib\kernel32.lib
-includelib \masm32\lib\masm32.lib
-
+option casemap : none
+	include \masm32\include\kernel32.inc
+	include \masm32\include\masm32.inc
+	includelib \masm32\lib\kernel32.lib
+	includelib \masm32\lib\masm32.lib
 .data
-	n		db 100 dup(?)
-	num_n	dd 0
-	mmry	db 0
-	print0	db '0', 20h, 0
-	print1	db '1', 20h, 0
-	s_f1	db '1', 99 dup(0), 0
-	s_f2	db 100 dup(0), 0
-	s_fn	db 101 dup(0)
-	fn_fix	db 101 dup(0)
-	bspace	db 20h, 0
+	len1	dd 0
+	len2	dd 0
+	lenmin	dd 0
+	num1	db 20 dup(0)
+	num2	db 20 dup(0)
+	num3	db 20 dup(0)
+	input	db "nhap num 1:", 0h
+	input1	db "nhap num 2:", 0h
+	output	db "ket qua :", 0h
 
 .code
-main PROC
-	push	offset s_f1
-	call	reverse
 
-	push	100
-	push	offset n
+MAIN PROC
+
+L1_:
+	push	offset input 
+	call	StdOut
+	push	20
+	push	offset num1
 	call	StdIn
+	mov		esi, offset num1
+	push	offset num1
+	call	LEN
+	mov		len1, eax
+	mov		byte ptr[esi + eax + 1], 0h
+	xor		ebx, ebx
+L2_:	
+	cmp		byte ptr [esi+ebx],30h
+	jb		L1_
+	cmp		byte ptr [esi+ebx], 39h
+	ja		L1_
+	inc		ebx
+	cmp		byte ptr[esi + ebx], 0
+	jnz		L2_
+	
 
-	push	offset n
-	call	atoi
-	mov		num_n, eax
+L3_:
+	push	offset input1
+	call	StdOut
+	push	20
+	push	offset num2
+	call	StdIn
+	push	offset num2
+	call	LEN
+	mov		len2, eax
+	mov		esi, offset num2
+	mov		byte ptr [esi + eax + 1], 0h
+	xor		ebx, ebx
+L4_:
+	cmp		byte ptr[esi + ebx], 30h
+	jb		L3_
+	cmp		byte ptr[esi + ebx], 39h
+	ja		L3_
+	inc		ebx
+	cmp		byte ptr[esi + ebx], 0
+	jnz		L4_
 
-	cmp		num_n, 0
-	jz		print01
-	cmp		num_n, 1
-	jz		print01
-	cmp		num_n, 2
-	je		print03
-	jmp		print_fibo
-
-	print01:
-		push	offset print0
-		call	StdOut
-		jmp		exit
-
-	print02 :
-		push	offset print1
-		call	StdOut
-		jmp		exit
-	print03 :
-		push	offset print0
-		call	StdOut
-		push	offset print1
-		call	StdOut
-		jmp		exit
-
-	print_fibo:
-		push	offset print0
-		call	StdOut
-
-		push	offset print1
-		call	StdOut
-
-		mov		ecx, 2
-		mov		eax, num_n
-		sub		eax, ecx
-		mov		num_n, eax
-		mov		eax, 0
-		jmp		find_fibo
-
-	find_fibo:
-		mov		ecx, num_n
-		cmp		num_n, 0
-		je		exit
-
-		push	offset s_f1
-		push	offset s_f2
-		push	offset s_fn
+	push	offset num1
+	call	CHECK
+	push	offset num2
+	call	CHECK
+	mov	eax, len1
+	cmp	eax, len2			; len1 > len2
+	jg	L1
+	cmp	eax, len2			; len1 < len2
+	jle	L2
+	L1 :
+		mov	eax, len2
+		mov	lenmin, eax
+		push	offset num1
+		push	offset num2
+		push	lenmin
 		call	ADD_TWO
-
-		push	offset s_fn
-		call	reverse
-		push	offset s_fn
+		push	offset num3
+		call	CHECK
+		push	offset output
 		call	StdOut
-		push	offset s_fn
-		call	reverse
-
-		push	offset s_f1
-		push	offset s_f2
-		call	copy
-		push	offset s_fn
-		push	offset s_f1
-		call	copy
-
-		push	offset bspace
+		push	offset num3
 		call	StdOut
-		mov		ecx, num_n
-		dec		ecx
-		mov		num_n, ecx
-		jmp		find_fibo
-
-	exit:
 		push	0
 		call	ExitProcess
-
-
-main ENDP
-
+	L2 :
+		mov	eax, len2
+		mov	lenmin, eax
+		push	offset num2
+		push	offset num1
+		push	lenmin
+		call	ADD_TWO
+		push	offset num3
+		call	CHECK
+		push	offset output
+		call	StdOut
+		push	offset num3
+		call	StdOut
+		push	0
+		call	ExitProcess
+MAIN ENDP
 ADD_TWO PROC
-	
-		push	ebp
-		mov		ebp, esp
-		mov		edx, [ebp + 8];		dia chi fn
-		mov		edi, [ebp + 12];	dia chi f2
-		mov		esi, [ebp + 16];	dia chi f1
-		mov		eax, 0
-
-	L1:
-		cmp		byte ptr [esi], 0
-		jz		exit
-		mov		al, byte ptr[edi]
-		mov		ah, byte ptr[esi]
-		sub		ah, 30h
-		cmp		al, 0h
-		jz		L3
-		sub		al, 30h
-		add		al, ah
-		add		al, [mmry]
-		cmp		al, 0Ah
-		jae		L2
-		mov		[mmry], 0
-		add		al, 30h
-		mov		[edx], al
-		inc		edx
-		inc		edi
-		inc		esi
-		jmp		L1
-
+	push	ebp
+	mov	ebp, esp
+	mov	ecx, [ebp + 8]		;	lenmin
+	mov	esi, [ebp + 12]		;	dia chi nho
+	mov	edi, [ebp + 16]		;	dia chi lon
+	mov	edx, OFFSET num3
+	mov	eax, 0
+	jmp	L1
 	L2:
-		sub		al, 0Ah
-		mov		[mmry], 1
-		add		al, 30h
-		mov		[edx], al
-		inc		edx
-		inc		esi
-		inc		edi
-		jmp		L1
-
+		sub	al, 0Ah
+		xor	ah, ah
+		mov	ah, 1
+		jmp	L3
+	L1:
+		mov	ebx, 0
+		add	bh, ah
+		mov	eax, 0
+		mov	bl, BYTE PTR[edi]
+		mov	al, BYTE PTR[esi]
+		cmp	al, 0
+		jz	L9
+		sub	al, 30h
+	L9:
+		sub	bl, 30h
+		add	bl, bh
+		add	al, bl
+		cmp	al, 0Ah
+		jge	L2
 	L3:
-		add		al, ah
-		add		al, [mmry]
-		cmp		al, 0Ah
-		jae		L2
-		mov		[mmry], 0
-		add		al, 30h
-		mov		[edx], al
-		inc		edx
-		inc		edi
-		inc		esi
-		jmp		L1
-
-	exit:
-		cmp		[mmry], 1
-		jz		exit2
-		pop ebp
-		ret 12
-	exit2: 
-		mov		byte ptr [edx], 31h
-		mov		[mmry], 0
-		pop		ebp
-		ret		12
-			
-
+		add	al, 30h
+		mov	BYTE PTR[edx], al
+		inc	esi
+		inc	edx
+		inc	edi
+		loop	L1
+		mov	ebx, lenmin
+		cmp	ebx, len1
+		jne	L4
+		jmp	L7
+	L4:
+		mov	ebx, 0
+		add	bh, ah
+		mov	bl, BYTE PTR[edi]
+		cmp	bl, 0h
+		je	L7
+		mov	eax, 0
+		sub	bl, 30h
+		add	bl, bh
+		mov	eax, 0
+		cmp	bl, 0Ah
+		jge	L5
+	L6:
+		add	bl, 30h
+		mov	BYTE PTR[edx], bl
+		inc	edx
+		inc	edi
+		loop	L4
+	L5:
+		sub	bl, 0Ah
+		xor	ah, ah
+		mov	ah, 1
+		jmp	L6
+	L7 :
+		cmp	ah, 1h
+		je	L8
+		inc	edx
+		mov	BYTE PTR[edx], 0
+		pop	ebp
+		ret	12
+	L8:
+		mov	BYTE PTR[edx], 1
+		add	BYTE PTR[edx], 30h
+		inc	edx
+		mov	BYTE PTR[edx], 0
+		pop	ebp
+		ret	12
 ADD_TWO ENDP
-
-copy PROC
-	push	ebp	
-	mov		ebp, esp
-	push	eax
-	push	ebx
-	mov		eax, [ebp+0Ch]			;chuoi duoc cp
-	mov		ebx, [ebp+08h]			;chuoi cp
-	xor		esi, esi
-	xor		edi, edi
-
-	for_copy:
-		xor		edx, edx
-		mov		dl, byte ptr [eax+esi]
-		cmp		dl, 0
-		jz		done_copy
-		mov		byte ptr [ebx+esi], dl
-		inc		esi
-		jmp		for_copy
-
-	done_copy:
-		mov		byte ptr [ebx+esi], 0
-		pop		ebx
-		pop		eax
-		pop		ebp
-		ret		8
-
-copy ENDP
-
-reverse PROC
+CHECK PROC
 	push	ebp
-	mov		ebp, esp
-	push	eax
-	mov		eax, [ebp+08h]
-	xor		esi, esi
-	xor		edi, edi
-	push	0h
-
-	for_re:
-		xor		edx, edx
-		mov		dl, byte ptr [eax+esi]
-		cmp		dl, 0
-		jz		pop_re
-		push	edx
-		inc		esi
-		jmp		for_re
-
-	pop_re:
-		xor		edx, edx
-		pop		edx
-		cmp		dl, 0h
-		jz		break_re
-		mov		byte ptr [eax+edi], dl
-		inc		edi
-		jmp		pop_re
-
-	break_re:
-		mov		byte ptr [eax+edi], 0
-		pop		eax
-		pop		ebp	
-		ret		4
-
-reverse ENDP
-
-atoi PROC
+	mov	ebp, esp
+	mov	esi, [ebp + 8]
+	mov	edi, [ebp + 8]
+	mov	ecx, 0
+	L1:
+		mov	eax, 0
+		mov	al, BYTE PTR[esi]
+		cmp	al, 0
+		jz	L2
+		push	eax
+		inc	esi
+		inc	ecx
+		jmp	L1
+	L2 :
+		mov	eax, 0
+		pop	eax
+		mov	BYTE PTR[edi], al
+		inc	edi
+		loop	L2
+		pop	ebp
+		ret	4
+CHECK ENDP
+LEN PROC
 	push	ebp
-	mov		ebp, esp
-	push	ebx
-	mov		ebx, [ebp+08h]
-	xor		esi, esi
-	xor		eax, eax
-	mov		edi, 10
-
-	for_atoi:
-		xor		edx, edx
-		mov		dl, byte ptr [ebx+esi]
-		cmp		dl, 0
-		jz		break_atoi
-		sub		edx, 30h
-		add		eax, edx
-		mul		edi
-		inc		esi
-		jmp		for_atoi
-
-	break_atoi:
-		mov		byte ptr [ebx+esi], 0
-		div		edi
-		pop		ebx
-		pop		ebp
-		ret		4
-
-atoi ENDP
-
-itoa PROC
-	push	ebp
-	mov		ebp, esp
-	push	eax
-	push	ebx
-	mov		eax, [ebp+0Ch]		;number
-	mov		ebx, [ebp+08h]		;string
-	xor		esi, esi
-	mov		edi, 10
-	push	69h
-
-	for_itoa:
-		xor		edx, edx
-		div		edi
-		xor		edx, 30h
-		push	edx
-		cmp		eax, 0
-		jz		pop_itoa
-		jmp		for_itoa
-
-	pop_itoa:
-		xor		edx, edx
-		pop		edx
-		cmp		dl, 69h
-		jz		break_itoa
-		mov		byte ptr [ebx+esi], dl
-		inc		esi
-		jmp		pop_itoa
-	
-	break_itoa:
-		mov		byte ptr [ebx+esi], 0
-;		div		edi
-		xor		edi, edi
-		pop		ebx
-		pop		eax
-		pop		ebp
-		ret		8
-
-itoa ENDP
-END main
+	mov	ebp, esp
+	mov	ebx, [ebp + 8]
+	mov	eax, 0
+	L1:
+		cmp	BYTE PTR[ebx], 0
+		jz	L2
+		inc	eax
+		inc	ebx
+		jmp	L1
+	L2 :
+		pop	ebp
+		ret	4
+LEN ENDP
+END MAIN
